@@ -10,7 +10,7 @@ axios.interceptors.request.use(config => {
   app.$Progress.start()
 
   if (store.getters['auth/isAuthenticated']) {
-    axios.defaults.headers.common['Access-Token'] = store.getters['auth/token']
+    config.headers['Access-Token'] = store.getters['auth/token']
   }
 
   return config
@@ -21,7 +21,13 @@ axios.interceptors.response.use(response => {
   return response
 }, error => {
   app.$Progress.fail()
-  return Promise.reject(error)
+
+  // sets network error status
+  if (!error.response) {
+    error.response = { status: -1 }
+  }
+
+  return Promise.reject(error.response)
 })
 
 export default axios
